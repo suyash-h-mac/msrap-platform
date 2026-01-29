@@ -1,0 +1,25 @@
+# OS
+.DS_Store
+
+# Java
+target/
+*.log
+*.class
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Data
+data/*
+!data/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+
