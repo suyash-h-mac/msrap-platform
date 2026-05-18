@@ -1,28 +1,26 @@
-# Build stage — compile the Spring Boot jar
+# ── Build stage: compile Spring Boot jar (Alpine is fine for Maven) ──────────
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 COPY backend/pom.xml .
 COPY backend/src ./src
 RUN apk add --no-cache maven && mvn clean package -DskipTests
 
-# Runtime stage
-FROM eclipse-temurin:21-jre-alpine
+# ── Runtime stage: Ubuntu (Jammy) so pip can use pre-built binary wheels ─────
+# Alpine lacks the C++ toolchain needed to compile scipy/numpy from source.
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
-# Python + build deps needed by psycopg2-binary / numpy / arch
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
       python3 \
-      py3-pip \
-      gcc \
-      musl-dev \
-      postgresql-dev \
+      python3-pip \
       python3-dev \
-      libffi-dev
+      gcc \
+      libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install all analytics Python dependencies so Java subprocess workers can import them
+# Install analytics deps with --prefer-binary so pip uses pre-built wheels
 COPY analytics/requirements.txt /tmp/analytics-requirements.txt
-RUN pip3 install --no-cache-dir --break-system-packages \
-      -r /tmp/analytics-requirements.txt
+RUN pip3 install --no-cache-dir --prefer-binary -r /tmp/analytics-requirements.txt
 
 COPY --from=build /app/target/*.jar app.jar
 
