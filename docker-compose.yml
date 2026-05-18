@@ -21,8 +21,8 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: msrap_backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://timescaledb:5432/msrap
