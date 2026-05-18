@@ -1,0 +1,76 @@
+version: '3.9'
+
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: msrap_db
+    environment:
+      POSTGRES_DB: msrap
+      POSTGRES_USER: msrap
+      POSTGRES_PASSWORD: msrap_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U msrap"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: msrap_backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://timescaledb:5432/msrap
+      SPRING_DATASOURCE_USERNAME: msrap
+      SPRING_DATASOURCE_PASSWORD: msrap_secret
+      ANALYTICS_PYTHON_PATH: /app/analytics
+    ports:
+      - "8080:8080"
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    volumes:
+      - ./analytics:/app/analytics
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/api/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 15s
+      timeout: 8s
+      retries: 8
+      start_period: 60s   # give Spring Boot time to start up
+
+  analytics:
+    build:
+      context: ./analytics
+      dockerfile: Dockerfile
+    container_name: msrap_analytics
+    environment:
+      DB_HOST: timescaledb
+      DB_PORT: 5432
+      DB_NAME: msrap
+      DB_USER: msrap
+      DB_PASSWORD: msrap_secret
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      backend:
+        condition: service_healthy   # wait until Spring Boot is UP before workers start
+    volumes:
+      - ./analytics:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: msrap_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  timescale_data:
