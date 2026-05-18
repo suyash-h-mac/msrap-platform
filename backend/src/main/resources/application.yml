@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: msrap-backend
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/msrap}
+    username: ${SPRING_DATASOURCE_USERNAME:msrap}
+    password: ${SPRING_DATASOURCE_PASSWORD:msrap_secret}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+msrap:
+  analytics:
+    python-service-url: ${ANALYTICS_PYTHON_URL:http://analytics:8000}
+    python-path: ${ANALYTICS_PYTHON_PATH:/app/analytics}
+
+  ingestion:
+    symbols:
+      - RELIANCE.NS
+      - TCS.NS
+      - INFY.NS
+      - HDFCBANK.NS
+      - ICICIBANK.NS
+      - SBIN.NS
+      - BHARTIARTL.NS
+      - ITC.NS
+      - KOTAKBANK.NS
+      - LT.NS
+      - AXISBANK.NS
+      - BAJFINANCE.NS
+      - HINDUNILVR.NS
+      - WIPRO.NS
+      - MARUTI.NS
+      - ^NSEI
+      - ^NSEBANK
+    history-days: 1825
+    schedule-cron: "0 0 6 * * MON-FRI"
+
+logging:
+  level:
+    com.msrap: DEBUG
+    org.springframework.scheduling: INFO
