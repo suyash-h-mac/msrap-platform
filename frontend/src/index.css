@@ -1,0 +1,46 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0a0c0f;
+  --bg2:       #0f1318;
+  --bg3:       #151a21;
+  --bg4:       #1c2330;
+  --border:    #1f2937;
+  --border2:   #2d3748;
+  --text:      #e2e8f0;
+  --text2:     #94a3b8;
+  --text3:     #64748b;
+  --accent:    #3b82f6;
+  --accent2:   #1d4ed8;
+  --green:     #10b981;
+  --red:       #ef4444;
+  --amber:     #f59e0b;
+  --purple:    #8b5cf6;
+  --teal:      #14b8a6;
+  --mono:      'JetBrains Mono', monospace;
+  --sans:      'Inter', sans-serif;
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.6; }
+
+#root { height: 100%; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+button { font-family: var(--sans); cursor: pointer; }
+input, select { font-family: var(--sans); }
+
+.mono { font-family: var(--mono); }
+
+.positive { color: var(--green); }
+.negative { color: var(--red); }
+.neutral  { color: var(--text2); }
+
+/* Recharts overrides */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--border) !important;
+}
+.recharts-tooltip-wrapper { outline: none; }
